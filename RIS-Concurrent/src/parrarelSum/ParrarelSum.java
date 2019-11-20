@@ -9,6 +9,9 @@ public class ParrarelSum {
 	private static int threadCount = 2;
 	private static long[] data;
 	
+	//TODO:スレッドの設定を外出ししておけば、生成時間を外出しできる。runが終わったらスレッド死ぬってあるけど、ローカル変数として作成しない場合
+	//は参照先がなくなってGCされるんだろうか？
+	
 	public static void main(String[] args) {
 		data = DataReader.readData("src/unsorted_nums.txt");
 		System.out.println("all data has been inmported on memory.");
