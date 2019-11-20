@@ -63,6 +63,7 @@ public class PrefixScan {
 				worker.wakeUp();
 			}
 			System.out.println("finish!");
+			//処理が完了した場合子スレッドは死ぬので、isAliveとかで処理完了の確認をするのは。。。よくない？
 			while(true) {
 				if(taskCounter2.getCounter() == threadCount) {
 					break;
