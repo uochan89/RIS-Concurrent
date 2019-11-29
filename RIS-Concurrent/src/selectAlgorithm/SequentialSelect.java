@@ -61,7 +61,8 @@ public class SequentialSelect {
 				}
 			}
 			
-			//retrieve element with particular type
+			//array pack
+			long[] newPack;
 			if(typeCounter[0] > targetIndex) {
 				data = retrieveTargetElements(data, chunkTypes, LESS_THEN_Q);
 			}else if((typeCounter[0] + typeCounter[1]) > targetIndex) {

@@ -1,5 +1,6 @@
 package selectAlgorithm;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 public class CountAndMark implements Runnable, Callable<Boolean>{
@@ -15,14 +16,16 @@ public class CountAndMark implements Runnable, Callable<Boolean>{
 	private static int[] chunkTypes;
 	private int chunkIndex;
 	private static int q;
+	private static int chunkCount;
 	
-	CountAndMark(long[] data, int[] typeCounter, int[] chunkTypes, long medianOfMedians, int chunkIndex, int q) {
+	CountAndMark(long[] data, int[] typeCounter, int[] chunkTypes, long medianOfMedians, int chunkIndex, int q, int chunkCount) {
 		CountAndMark.data = data;
 		CountAndMark.medianOfMedians = medianOfMedians;
 		CountAndMark.typeCounter = typeCounter;
 		CountAndMark.chunkTypes = chunkTypes;
 		this.chunkIndex = chunkIndex;
 		CountAndMark.q = q;
+		CountAndMark.chunkCount = chunkCount;
 	}
 	
 	@Override
@@ -32,12 +35,7 @@ public class CountAndMark implements Runnable, Callable<Boolean>{
 
 	@Override
 	public void run() {
-		int chunkCount;
-		if(data.length%q == 0) {
-			chunkCount = data.length/q;
-		}else {
-			chunkCount = data.length/q + 1;
-		}
+		//いろんな位置でこれを計算しているけどこれは定数のはず
 		int from = chunkIndex*q;
 		int to = (chunkIndex+1)*q;
 		if(chunkIndex == chunkCount - 1) to = data.length;
