@@ -2,8 +2,9 @@ package narysort;
 
 import java.util.Arrays;
 
-public class SequentialNArySelect {
+public class SequentialNArySearch {
 
+	//sequential version of N-array search. This algorithm defines n points on the array as 2 points in binary search.
 	public static void main(String[] args) {
 		
 		int[] data = {423,42,34,234,2,654,635,27,463,46385,746,236,7624,63,676245,5473,662,45256,35,251,426,73664,25};
@@ -14,6 +15,7 @@ public class SequentialNArySelect {
 		int start = 0;
 		int end = data.length;
 		int answer = -1;
+		
 		loop:
 		while(start<end) {
 			//TODO:start,endで３つめのコメントまでを修正する。
@@ -28,14 +30,13 @@ public class SequentialNArySelect {
 			dividientIndex[n-1] = end-1;
 			System.out.println(Arrays.toString(dividientIndex));
 			
-			int[] dividientType = new int[n];
 			// -1 right arrow, 0 corret, 1, left arrow
+			int[] dividientType = new int[n];
 			for(int i=0; i < n; i++) {
 				if(data[dividientIndex[i]] == key) {
 					answer = dividientIndex[i];
 					System.out.println(dividientIndex[i]);
 					break loop;
-					//whileがbreakできてないんか・・・
 				}else if (data[dividientIndex[i]] > key) {
 					dividientType[i] = -1;
 				}else if (data[dividientIndex[i]] < key) {
@@ -45,7 +46,7 @@ public class SequentialNArySelect {
 			System.out.println(Arrays.toString(dividientType));
 			
 			//-1, 1の切り替え点を次のstart endとする
-			//最後に切り替え点があった場合大丈夫？
+			//最後に切り替え点があった場合大丈夫
 			for(int i=0; i < n-1; i++) {
 				if(dividientType[i] == 1 && dividientType[i+1] == -1) {
 					start = dividientIndex[i]+1;

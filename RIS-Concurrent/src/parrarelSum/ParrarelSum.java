@@ -1,77 +1,71 @@
 package parrarelSum;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import util.DataReader;
 
 public class ParrarelSum {
 
-	private static int threadCount = 2;
-	private static long[] data;
-	
-	//TODO:スレッドの設定を外出ししておけば、生成時間を外出しできる。runが終わったらスレッド死ぬってあるけど、ローカル変数として作成しない場合
-	//は参照先がなくなってGCされるんだろうか？
+	private int threadCount;
+	private ExecutorService executorService;
 	
 	public static void main(String[] args) {
-		data = DataReader.readData("src/unsorted_nums.txt");
-		System.out.println("all data has been inmported on memory.");
-		System.out.println("start sum in sequential mode.");
-		long start = System.currentTimeMillis();
-		System.out.println(sequentialSum(data));
-		long end = System.currentTimeMillis();
-		System.out.println("time required : " + (end - start));
-		System.out.println("start sum in concurrent mode.");
-		start = System.currentTimeMillis();
-		System.out.println(concurrentSum(data));
-		end = System.currentTimeMillis();
-		System.out.println("time required : " + (end - start));
+		long[] data = DataReader.readDataInLong("src/unsorted_nums.txt");
+		ExecutorService executorService = Executors.newFixedThreadPool(6);
+		ParrarelSum summer = new ParrarelSum(6, executorService);
+		System.out.println(summer.getSum(data));
+		executorService.shutdown();
 	}
 	
-	private static long concurrentSum(long[] data) {
+	public ParrarelSum(int threadCount, ExecutorService executorService) {
+		this.threadCount = threadCount;
+		this.executorService = executorService;
+	}
+	
+	public long getSum(long[] data) {
+		CountDownLatch latch = new CountDownLatch(threadCount);
 		long[] results = new long[threadCount];
-		Counter[] counters = new Counter[threadCount];
 		for (int i = 0; i < threadCount; i++) {
-			Counter counter = new Counter(data, results, threadCount);
-			counters[i] = counter;
-			counter.run();
+			Counter counter = new Counter(data, results, i, threadCount, latch);
+			executorService.execute(counter);
 		}
-		for (int i = 0; i < counters.length; i++) {
-			try {
-				counters[i].join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		return sequentialSum(results);	
+		return Arrays.stream(results).sum();
 	}
 	
-	private static long sequentialSum(long[] data) {
-		return Arrays.stream(data).sum();
-	}
 }
 
-class Counter extends Thread{
+class Counter implements Runnable{
 	
 	private static long[] data;
 	private static long[] results;
+	private int threadId;
 	private static int threadCount;
+	private static CountDownLatch latch;
 	
-	Counter(long[] data, long[] results, int threadCount){
+	Counter(long[] data, long[] results, int threadId, int threadCount, CountDownLatch latch){
 		Counter.data = data;
 		Counter.results = results;
+		this.threadId = threadId;
 		Counter.threadCount = threadCount;
+		Counter.latch = latch;
 	}
 
 	@Override
 	public void run() {
-		System.out.println(this.getName() + " has started cuculating...");
-		int id = Integer.parseInt(this.getName().substring(7));
 		long sum = 0;
-		for(int i = id; i < data.length; i+= threadCount) {
+		for(int i = threadId; i < data.length; i+= threadCount) {
 			sum += data[i];
 		}
-		results[id] = sum;
-		System.out.println(this.getName() + " finished cuculating.");
+		results[threadId] = sum;
+		latch.countDown();
 	}
 	
 }

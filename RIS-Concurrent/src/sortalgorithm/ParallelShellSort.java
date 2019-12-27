@@ -2,7 +2,7 @@ package sortalgorithm;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import util.DataReader;
@@ -10,31 +10,29 @@ import util.DataReader;
 public class ParallelShellSort {
 
 	private int threadCount;
-	private Executor executor;
+	private ExecutorService executorService;
 	
 	public static void main(String[] args) {
 		//long[] data = {9,8,3,7,3,6,5,9,8,2,5,7,4,8,5,6,4,5,6,7,4,3,2,1};
-		long[] data = DataReader.readData("src/unsorted_nums.txt");
-		Executor executor = Executors.newFixedThreadPool(2);
-		ParallelShellSort sorter = new ParallelShellSort(2, executor);
+		long[] data = DataReader.readDataInLong("src/unsorted_nums.txt");
+		ExecutorService executorService = Executors.newFixedThreadPool(2);
+		ParallelShellSort sorter = new ParallelShellSort(2, executorService);
 		sorter.sort(data);
-		System.out.println("answer");
 		System.out.println(Arrays.toString(data));
-		//executorをexecutorServiceを停止するみたいに停止するにはどうすればいい？しなくていいんかな・・・
+		executorService.shutdown();
 	}
 	
-	public ParallelShellSort(int threadCount, Executor executor) {
+	public ParallelShellSort(int threadCount, ExecutorService executorService) {
 		this.threadCount = threadCount;
-		this.executor = executor;
+		this.executorService = executorService;
 	}
 	
 	public void sort(long[] data) {
 		for(int h = threadCount; h > 1; h--) {
-			System.out.println("h : " + h);
 			CountDownLatch latch = new CountDownLatch(h-1);
 			for(int threadId = 0; threadId < h; threadId++) {
 				Chunk chunk = new Chunk(h, threadId, data, latch);
-				executor.execute(chunk);
+				executorService.execute(chunk);
 			}
 			try {
 				latch.await();
@@ -94,8 +92,6 @@ class Chunk implements Runnable{
 				}
 			}
 		}
-		System.out.println("fin");
-		//barrierはexceptionでもwaitに入ることが確認できた。=> barrierを使用した場合に、スレッド内のエラーをどうやってキャチすればいいのか？
 		latch.countDown();
 	}
 	

@@ -10,8 +10,16 @@ import java.util.List;
 
 public class DataReader {
 
-	public static long[] readData(String filePath) {
-    	File file = new File(filePath);
+	public static long[] readDataInLong(String filePath) {    	
+        return readData(filePath).stream().mapToLong(i->i).toArray();
+    }
+	
+	public static int[] readDataInInt(String filePath) {
+		return readData(filePath).stream().mapToInt(i->i).toArray();
+	}
+	
+	private static List<Integer> readData(String filePath) {
+		File file = new File(filePath);
         FileReader fileReader = null;
     	try {
     		fileReader = new FileReader(file);
@@ -30,7 +38,7 @@ public class DataReader {
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
-        return data.stream().mapToLong(i->i).toArray();
-    }
+        return data;
+	}
 	
 }

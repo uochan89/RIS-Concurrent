@@ -1,21 +1,23 @@
 package prefixscanner.parrarel;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
-class AddValue implements Runnable, Callable<Boolean>{
+class AddValue implements Runnable {
 	
-	private static int[] data;
+	private static long[] data;
 	private static int threadCount;
-	private static int[] tailOfChunks;
+	private static long[] tailOfChunks;
 	private static int stride;
 	private int threadId;
+	private static CountDownLatch latch;
 	
-	AddValue(int[] data, int threadCount, int[] tailOfChunks, int threadId){
+	AddValue(long[] data, int threadCount, long[] tailOfChunks, int threadId, CountDownLatch latch){
 		AddValue.data = data;
 		AddValue.threadCount = threadCount;
 		this.threadId = threadId;
 		AddValue.tailOfChunks = tailOfChunks;
 		stride = data.length/threadCount;
+		AddValue.latch = latch;
 	}
 	
 	@Override
@@ -26,11 +28,7 @@ class AddValue implements Runnable, Callable<Boolean>{
 		for(int i = start; i < end; i++) {
 			data[i] += tailOfChunks[threadId];
 		}
-	}
-
-	@Override
-	public Boolean call() throws Exception {
-		return new Boolean(true);
+		latch.countDown();
 	}
 	
 }

@@ -5,14 +5,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ParallelNArySelect {
+public class ParallelNArySearch {
 
 	private int threadCount = 2;
 	private int chunkCount = 10;
 	private Executor executor;
 	private CountDownLatch latch  = new CountDownLatch(threadCount);
 	
-	public ParallelNArySelect(Executor executor) {
+	public ParallelNArySearch(Executor executor) {
 		//これって自前でもってもええな・・・けっこうロジックに依存してるんではなかろうか？
 		this.executor = executor;
 	}
@@ -23,7 +23,7 @@ public class ParallelNArySelect {
 		System.out.println(Arrays.toString(data));
 		
 		Executor executor = Executors.newFixedThreadPool(2);
-		ParallelNArySelect pSorter = new ParallelNArySelect(executor);
+		ParallelNArySearch pSorter = new ParallelNArySearch(executor);
 		int clue = pSorter.search(data,25);
 		System.out.println("answer : " + clue);
 	}

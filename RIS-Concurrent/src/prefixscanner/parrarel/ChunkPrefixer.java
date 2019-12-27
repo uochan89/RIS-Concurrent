@@ -1,24 +1,21 @@
 package prefixscanner.parrarel;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
-class ChunkPrefixer implements Runnable, Callable<Boolean>{
+class ChunkPrefixer implements Runnable{
 
-	private static int[] data;
-	private static int[] chunkData;
+	private static long[] data;
+	private static long[] prefixResults;
 	private static int threadCount;
 	private int threadId;
+	private static CountDownLatch latch;
 	
-	ChunkPrefixer(int[] data, int threadCount, int threadId, int[] chunkData){
+	ChunkPrefixer(long[] data, int threadCount, int threadId, long[] prefixResults, CountDownLatch latch){
 		ChunkPrefixer.data = data;
 		ChunkPrefixer.threadCount = threadCount;
 		this.threadId = threadId;
-		ChunkPrefixer.chunkData = chunkData;
-	}
-	
-	@Override
-	public Boolean call() throws Exception {
-		return new Boolean(true);
+		ChunkPrefixer.prefixResults = prefixResults;
+		ChunkPrefixer.latch = latch;
 	}
 
 	@Override
@@ -33,7 +30,8 @@ class ChunkPrefixer implements Runnable, Callable<Boolean>{
 		for(int i = start+1; i < end; i++) {
 			data[i] = data[i-1] + data[i];
 		}
-		chunkData[threadId] = data[end-1];
+		prefixResults[threadId] = data[end-1];
+		latch.countDown();
 	}
 	
 }
